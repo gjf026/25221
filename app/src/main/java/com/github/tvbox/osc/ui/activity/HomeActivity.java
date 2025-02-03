@@ -255,8 +255,8 @@ public class HomeActivity extends BaseActivity {
         });
     }
 
-    private boolean dataInitOk = false;
-    private boolean jarInitOk = false;
+    private static boolean dataInitOk = false;
+    private static boolean jarInitOk = false;
 
     private void initData() {
         SourceBean home = ApiConfig.get().getHomeSourceBean();
@@ -314,6 +314,9 @@ public class HomeActivity extends BaseActivity {
 
             @Override
             public void retry() {
+                dataInitOk = true;
+                jarInitOk = true;
+
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {

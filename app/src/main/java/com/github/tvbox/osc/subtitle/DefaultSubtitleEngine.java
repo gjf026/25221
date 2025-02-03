@@ -28,9 +28,10 @@ package com.github.tvbox.osc.subtitle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import com.github.tvbox.osc.base.App;
 import com.github.tvbox.osc.cache.CacheManager;
@@ -239,7 +240,7 @@ public class DefaultSubtitleEngine implements SubtitleEngine {
                         mWorkHandler.sendEmptyMessageDelayed(MSG_REFRESH, delay);
                     }
                 } catch (Exception e) {
-                    // ignored
+                    e.printStackTrace();
                 }
                 return true;
             }

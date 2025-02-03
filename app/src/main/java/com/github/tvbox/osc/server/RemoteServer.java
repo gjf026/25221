@@ -31,7 +31,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,23 +113,28 @@ public class RemoteServer extends NanoHTTPD {
                     if (params.containsKey("do")) {
                         Object[] rs = ApiConfig.get().proxyLocal(params);
                         try {
-                            int code = (int) rs[0];
-                            String mime = (String) rs[1];
-                            InputStream stream = rs[2] != null ? (InputStream) rs[2] : null;
-                            Response response = NanoHTTPD.newChunkedResponse(
-                                    NanoHTTPD.Response.Status.lookup(code),
-                                    mime,
-                                    stream
-                            );
-                            if(rs.length>=4){
-                                HashMap<String, String> mapHeader = (HashMap<String, String>) rs[3];
-                                if(!mapHeader.isEmpty()){
-                                    for (String key : mapHeader.keySet()) {
-                                        response.addHeader(key, mapHeader.get(key));
+                            if (rs.length >= 3) {
+                                int code = (int) rs[0];
+                                String mime = (String) rs[1];
+                                InputStream stream = rs[2] != null ? (InputStream) rs[2] : null;
+                                Response response = NanoHTTPD.newChunkedResponse(
+                                        NanoHTTPD.Response.Status.lookup(code),
+                                        mime,
+                                        stream
+                                );
+                                if (rs.length >= 4) {
+                                    HashMap<String, String> mapHeader = (HashMap<String, String>) rs[3];
+                                    if (!mapHeader.isEmpty()) {
+                                        for (String key : mapHeader.keySet()) {
+                                            response.addHeader(key, mapHeader.get(key));
+                                        }
                                     }
                                 }
+                                return response;
+                            } else if (rs.length == 1) {
+                                return (Response) rs[0];
                             }
-                            return response;
+                            return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.INTERNAL_ERROR, NanoHTTPD.MIME_PLAINTEXT, "500");
                         } catch (Throwable th) {
                             return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.INTERNAL_ERROR, NanoHTTPD.MIME_PLAINTEXT, "500");
                         }
@@ -181,7 +185,7 @@ public class RemoteServer extends NanoHTTPD {
                         String data = new String(Base64.decode(dashData, Base64.DEFAULT | Base64.NO_WRAP), "UTF-8");
                         return NanoHTTPD.newFixedLengthResponse(
                                 Response.Status.OK,
-                                "application/dash+xml",
+                                App.getInstance().getDashDataType(),
                                 data
                         );
                     } catch (Throwable th) {
